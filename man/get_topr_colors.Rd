@@ -14,6 +14,8 @@ Vector of colors used for plotting
 All other input parameters are optional
 }
 \examples{
+\dontrun{
 get_topr_colors()
+}
 
 }

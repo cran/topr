@@ -2,7 +2,7 @@
 % Please edit documentation in R/qqtopr.R
 \name{qqtopr}
 \alias{qqtopr}
-\title{Create a QQ plot}
+\title{Create a quantile quantile (QQ) plot}
 \usage{
 qqtopr(
   dat,
@@ -19,7 +19,8 @@ qqtopr(
   axis_title_size = 12,
   title_text_size = 13,
   legend_title_size = 12,
-  legend_text_size = 12
+  legend_text_size = 12,
+  verbose = NULL
 )
 }
 \arguments{
@@ -31,17 +32,17 @@ qqtopr(
 
 \item{breaks}{A number setting the breaks for the axes}
 
-\item{title}{A string}
+\item{title}{A string to set the plot title}
 
-\item{color}{A string or vector of strings setting the color/s for the input dataset/s}
+\item{color}{A string or vector of strings setting the color's for the input dataset's}
 
-\item{size}{An integer setting the size of the plot points (default: \code{size=1.2})}
+\item{size}{A number or a vector of numbers, setting the size of the plot points (default: \code{size=1.2})}
 
 \item{legend_name}{A string, use to change the name of the legend (default: None)}
 
 \item{legend_position}{A string, top,bottom,left or right}
 
-\item{legend_labels}{A string or vector of strings representing legend labels for the input dataset/s}
+\item{legend_labels}{A string or vector of strings representing legend labels for the input dataset's}
 
 \item{axis_text_size}{A number, size of the x and y axes tick labels (default: 12)}
 
@@ -52,6 +53,8 @@ qqtopr(
 \item{legend_title_size}{A number, size of the legend title}
 
 \item{legend_text_size}{A number, size of the legend text}
+
+\item{verbose}{A logical scalar (default: NULL). Set to FALSE to suppress printed messages}
 }
 \value{
 ggplot

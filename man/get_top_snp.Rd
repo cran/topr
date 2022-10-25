@@ -19,6 +19,8 @@ Dataframe containing the top hit
 All other input parameters are optional
 }
 \examples{
+\dontrun{
 get_top_snp(CD_UKBB, chr="chr1")
+}
 
 }

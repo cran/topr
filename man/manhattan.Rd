@@ -6,7 +6,7 @@
 \usage{
 manhattan(
   df,
-  ntop = 3,
+  ntop = 4,
   title = "",
   annotate = NULL,
   color = get_topr_colors(),
@@ -50,15 +50,34 @@ manhattan(
   rsids = NULL,
   rsids_color = NULL,
   rsids_with_vline = NULL,
-  annotate_with_vline = NULL
+  annotate_with_vline = NULL,
+  shades_color = NULL,
+  shades_alpha = 0.1,
+  segment.size = 0.2,
+  segment.color = "black",
+  segment.linetype = "solid",
+  max.overlaps = 10,
+  label_fontface = "plain",
+  label_family = "",
+  gene_label_fontface = "plain",
+  gene_label_family = "",
+  build = 38,
+  verbose = NULL,
+  label_alpha = 1,
+  shades_line_alpha = 1,
+  vline = NULL,
+  vline_color = "grey",
+  vline_linetype = "dashed",
+  vline_alpha = 1,
+  vline_size = 0.5
 )
 }
 \arguments{
 \item{df}{Dataframe or a list of dataframes (required columns are \code{CHROM,POS,P}), in upper- or lowercase) of association results.}
 
-\item{ntop}{An integer, number of datasets (GWAS results) to show on the top plot}
+\item{ntop}{An integer, number of datasets (GWASes) to show on the top plot}
 
-\item{title}{A string}
+\item{title}{A string to set the plot title}
 
 \item{annotate}{A number (p-value). Display annotation for variants with p-values below this threshold}
 
@@ -68,15 +87,15 @@ manhattan(
 
 \item{sign_thresh_color}{A string or vector of strings to set the color/s of the significance threshold/s}
 
-\item{sign_thresh_label_size}{A number setting the text size of the label for the signficance thresholds (default text size is 3.5)}
+\item{sign_thresh_label_size}{A number setting the text size of the label for the significance thresholds (default text size is 3.5)}
 
 \item{label_size}{An number to set the size of the plot labels (default: \code{label_size=3})}
 
-\item{size}{An integer setting the size of the plot points (default: \code{size=1.2})}
+\item{size}{A number or a vector of numbers, setting the size of the plot points (default: \code{size=1.2})}
 
-\item{shape}{A number of vector of numbers setting the shape of the plotted points}
+\item{shape}{A number of a vector of numbers setting the shape of the plotted points}
 
-\item{alpha}{A number or vector of numbers setting the transparency of the plotted points}
+\item{alpha}{A number or a vector of numbers setting the transparency of the plotted points}
 
 \item{highlight_genes_color}{A string, color for the highlighted genes (default: green)}
 
@@ -96,13 +115,13 @@ manhattan(
 
 \item{angle}{A number, the angle of the text label}
 
-\item{legend_labels}{A string or vector of strings representing legend labels for the input dataset/s}
+\item{legend_labels}{A string or vector of strings representing legend labels for the input dataset's}
 
 \item{chr}{A string or integer, the chromosome to plot (i.e. chr15), only required if the input dataframe contains results from more than one chromosome}
 
 \item{annotate_with}{A string. Annotate the variants with either Gene_Symbol or ID (default: "Gene_Symbol")}
 
-\item{region_size}{An integer (default = 1000000) indicating the window size for variant labelling. Increase this number for sparser annotation and decrease for denser annotation.}
+\item{region_size}{An integer (default = 1000000) (or a string represented as 100kb or 1MB) indicating the window size for variant labeling. Increase this number for sparser annotation and decrease for denser annotation.}
 
 \item{legend_name}{A string, use to change the name of the legend (default: None)}
 
@@ -118,7 +137,7 @@ manhattan(
 
 \item{highlight_genes}{A string or vector of strings, gene or genes to highlight at the bottom of the plot}
 
-\item{label_color}{A string. To change the color of the gene or variant labels}
+\item{label_color}{A string or a vector of strings. To change the color of the gene or variant labels}
 
 \item{legend_nrow}{An integer, sets the number of rows allowed for the legend labels}
 
@@ -130,7 +149,7 @@ manhattan(
 
 \item{show_legend}{A logical scalar, set to FALSE to hide the legend (default value is TRUE)}
 
-\item{sign_thresh_linetype}{A string, the linetype of the horizontal significance threshold (default = dashed)}
+\item{sign_thresh_linetype}{A string, the line-type of the horizontal significance threshold (default = dashed)}
 
 \item{sign_thresh_size}{A number, sets the size of the horizontal significance threshold line (default = 1)}
 
@@ -141,6 +160,44 @@ manhattan(
 \item{rsids_with_vline}{A string (rsid) or vector of strings to highlight on the plot with their rsids and vertical lines further highlighting their positions}
 
 \item{annotate_with_vline}{A number (p-value). Display annotation and vertical lines for variants with p-values below this threshold}
+
+\item{shades_color}{The color of the rectangles (shades) representing the different chromosomes on the Manhattan plot}
+
+\item{shades_alpha}{The transparency (alpha) of the rectangles (shades)}
+
+\item{segment.size}{line segment color (ggrepel argument)}
+
+\item{segment.color}{line segment thickness (ggrepel argument)}
+
+\item{segment.linetype}{line segment solid, dashed, etc.(ggrepel argument)}
+
+\item{max.overlaps}{Exclude text labels that overlap too many things. Defaults to 10 (ggrepel argument)}
+
+\item{label_fontface}{A string or a vector of strings. Label font “plain”, “bold”, “italic”, “bold.italic” (ggrepel argument)}
+
+\item{label_family}{A stirng or a vector of strings. Label font name (default ggrepel argument is "")}
+
+\item{gene_label_fontface}{Gene label font “plain”, “bold”, “italic”, “bold.italic” (ggrepel argument)}
+
+\item{gene_label_family}{Gene label font name (default ggrepel argument is "")}
+
+\item{build}{A number representing the genome build. Set to 37 to change to build (GRCh37). The default is build 38 (GRCh38).}
+
+\item{verbose}{A logical scalar (default: NULL). Set to FALSE to suppress printed messages}
+
+\item{label_alpha}{An number or vector of numbers to set the transparency of the plot labels (default: \code{label_alpha=1})}
+
+\item{shades_line_alpha}{The transparency (alpha) of the lines around the rectangles (shades)}
+
+\item{vline}{A number or vector of numbers to add a vertical line to the plot at a specific chromosomal position, e.g \code{vline=chr1:204000066}. Multiple values can be provided in a vector, e.g  \code{vline=c(chr1:204000066,chr5:100500188)}}
+
+\item{vline_color}{The color of added vertical line/s (default: grey)}
+
+\item{vline_linetype}{The linetype of added vertical line/s (default : dashed)}
+
+\item{vline_alpha}{The alpha of added vertical line/s (default : 1)}
+
+\item{vline_size}{The size of added vertical line/s (default : 0.5)}
 }
 \value{
 ggplot object
@@ -152,5 +209,7 @@ Required parameter is at least one dataset (dataframe) containing the associatio
 All other input parameters are optional
 }
 \examples{
+\donttest{
 manhattan(CD_UKBB)
+}
 }

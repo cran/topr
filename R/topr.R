@@ -15,11 +15,4 @@
 #' # Create a regional plot
 #' regionplot(CD_UKBB, gene="IL23R")
 #' 
-#' # Get the lead/index snps (the top snp per MB window)
-#' get_best_snp_per_MB(CD_UKBB)
-#' 
-#' # Annotate the index snps with their nearest gene
-#' index_snps <- get_best_snp_per_MB(CD_UKBB)
-#' annotate_with_nearest_gene(index_snps)
-
 NULL

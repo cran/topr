@@ -4,7 +4,14 @@
 \alias{get_snps_within_region}
 \title{Get SNPs/variants within region}
 \usage{
-get_snps_within_region(df, region, chr = NULL, xmin = NULL, xmax = NULL)
+get_snps_within_region(
+  df,
+  region,
+  chr = NULL,
+  xmin = NULL,
+  xmax = NULL,
+  keep_chr = NULL
+)
 }
 \arguments{
 \item{df}{data frame of association results with the columns CHR and POS}
@@ -16,6 +23,8 @@ get_snps_within_region(df, region, chr = NULL, xmin = NULL, xmax = NULL)
 \item{xmin}{An integer, include variants with POS larger than xmin}
 
 \item{xmax}{An integer, include variants with POS smaller than xmax}
+
+\item{keep_chr}{Deprecated: Logical, set to FALSE to remove the "chr" prefix before each chromosome if present (TRUE by default)}
 }
 \value{
 the variants within the requested region
@@ -24,6 +33,8 @@ the variants within the requested region
 \code{get_snps_within_region()}
 }
 \examples{
+\dontrun{
 get_snps_within_region(CD_UKBB, "chr16:50593587-50834041")
+}
 
 }

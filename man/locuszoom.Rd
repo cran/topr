@@ -18,7 +18,7 @@ locuszoom(
   axis_text_size = 11,
   axis_title_size = 12,
   title_text_size = 13,
-  show_genes = FALSE,
+  show_genes = NULL,
   show_overview = FALSE,
   show_exons = FALSE,
   max_genes = 200,
@@ -54,7 +54,23 @@ locuszoom(
   annotate_with_vline = NULL,
   sign_thresh_size = 0.5,
   unit_main = 7,
-  unit_gene = 2
+  unit_gene = 2,
+  gene_color = NULL,
+  segment.size = 0.2,
+  segment.color = "black",
+  segment.linetype = "solid",
+  show_gene_legend = TRUE,
+  max.overlaps = 10,
+  extract_plots = FALSE,
+  label_fontface = "plain",
+  label_family = "",
+  gene_label_fontface = "plain",
+  gene_label_family = "",
+  build = 38,
+  verbose = NULL,
+  show_legend = TRUE,
+  label_alpha = 1,
+  gene_label_size = NULL
 )
 }
 \arguments{
@@ -62,15 +78,15 @@ locuszoom(
 
 \item{annotate}{A number (p-value). Display annotation for variants with p-values below this threshold}
 
-\item{ntop}{An integer, number of datasets (GWAS results) to show on the top plot}
+\item{ntop}{An integer, number of datasets (GWASes) to show on the top plot}
 
-\item{xmin}{Integer, setting the chromosomal range to display on the x-axis}
+\item{xmin, xmax}{Integer, setting the chromosomal range to display on the x-axis}
 
-\item{size}{An integer setting the size of the plot points (default: \code{size=1.2})}
+\item{size}{A number or a vector of numbers, setting the size of the plot points (default: \code{size=1.2})}
 
-\item{shape}{A number of vector of numbers setting the shape of the plotted points}
+\item{shape}{A number of a vector of numbers setting the shape of the plotted points}
 
-\item{alpha}{A number or vector of numbers setting the transparency of the plotted points}
+\item{alpha}{A number or a vector of numbers setting the transparency of the plotted points}
 
 \item{label_size}{An number to set the size of the plot labels (default: \code{label_size=3})}
 
@@ -88,7 +104,7 @@ locuszoom(
 
 \item{show_overview}{A logical scalar, shows/hides the overview plot (default= TRUE)}
 
-\item{show_exons}{A logical scalar, show exons instead of genes (default show_exons=FALSE)}
+\item{show_exons}{Deprecated : A logical scalar, show exons instead of genees (default show_exons=FALSE)}
 
 \item{max_genes}{An integer, only label the genes if they are fewer than max_genes (default values is 200).}
 
@@ -96,17 +112,13 @@ locuszoom(
 
 \item{sign_thresh_color}{A string or vector of strings to set the color/s of the significance threshold/s}
 
-\item{sign_thresh_label_size}{A number setting the text size of the label for the signficance thresholds (default text size is 3.5)}
+\item{sign_thresh_label_size}{A number setting the text size of the label for the significance thresholds (default text size is 3.5)}
 
-\item{xmax}{Integer, setting the chromosomal range to display on the x-axis}
-
-\item{ymin}{Integer, min and max of the y-axis, (default values: \code{ymin=0, ymax=max(-log10(df$P))})}
-
-\item{ymax}{Integer, min and max of the y-axis, (default values: \code{ymin=0, ymax=max(-log10(df$P))})}
+\item{ymin, ymax}{Integer, min and max of the y-axis, (default values: \code{ymin=0, ymax=max(-log10(df$P))})}
 
 \item{protein_coding_only}{A logical scalar, if TRUE, only protein coding genes are used for annotation}
 
-\item{region_size}{An integer (default = 1000000) indicating the window size for variant labelling. Increase this number for sparser annotation and decrease for denser annotation.}
+\item{region_size}{An integer (default = 1000000) (or a string represented as 100kb or 1MB) indicating the window size for variant labeling. Increase this number for sparser annotation and decrease for denser annotation.}
 
 \item{gene_padding}{An integer representing size of the region around the gene, if the gene argument was used (default = 100000)}
 
@@ -136,13 +148,13 @@ locuszoom(
 
 \item{show_gene_names}{A logical scalar, if set to TRUE, gene names are shown even though they exceed the max_genes count}
 
-\item{legend_labels}{A string or vector of strings representing legend labels for the input dataset/s}
+\item{legend_labels}{A string or vector of strings representing legend labels for the input dataset's}
 
 \item{gene}{A string representing the gene to zoom in on (e.g. gene=FTO)}
 
-\item{title}{A string}
+\item{title}{A string to set the plot title}
 
-\item{label_color}{A string. To change the color of the gene or variant labels}
+\item{label_color}{A string or a vector of strings. To change the color of the gene or variant labels}
 
 \item{region}{A string representing a genetic region, e.g. chr1:67038906-67359979}
 
@@ -157,6 +169,38 @@ locuszoom(
 \item{unit_main}{the height unit of the main plot (default = 7)}
 
 \item{unit_gene}{the height unit of the gene plot (default= 2 )}
+
+\item{gene_color}{A string representing a color, can be used to change the color of the genes/exons on the geneplot}
+
+\item{segment.size}{line segment color (ggrepel argument)}
+
+\item{segment.color}{line segment thickness (ggrepel argument)}
+
+\item{segment.linetype}{line segment solid, dashed, etc.(ggrepel argument)}
+
+\item{show_gene_legend}{A logical scalar, set to FALSE to hide the gene legend (default value is TRUE)}
+
+\item{max.overlaps}{Exclude text labels that overlap too many things. Defaults to 10 (ggrepel argument)}
+
+\item{extract_plots}{Logical, FALSE by default. Set to TRUE to extract the three plots separately in a list}
+
+\item{label_fontface}{A string or a vector of strings. Label font “plain”, “bold”, “italic”, “bold.italic” (ggrepel argument)}
+
+\item{label_family}{A stirng or a vector of strings. Label font name (default ggrepel argument is "")}
+
+\item{gene_label_fontface}{Gene label font “plain”, “bold”, “italic”, “bold.italic” (ggrepel argument)}
+
+\item{gene_label_family}{Gene label font name (default ggrepel argument is "")}
+
+\item{build}{A number representing the genome build. Set to 37 to change to build (GRCh37). The default is build 38 (GRCh38).}
+
+\item{verbose}{Logical, set to FALSE to get suppress printed information}
+
+\item{show_legend}{A logical scalar, set to FALSE to hide the legend (default value is TRUE)}
+
+\item{label_alpha}{An number or vector of numbers to set the transparency of the plot labels (default: \code{label_alpha=1})}
+
+\item{gene_label_size}{A number setting the size of the gene labels shown at the bottom of the plot}
 }
 \value{
 plots using egg (https://cran.r-project.org/web/packages/egg/vignettes/Ecosystem.html)
@@ -166,5 +210,7 @@ plots using egg (https://cran.r-project.org/web/packages/egg/vignettes/Ecosystem
 Required parameter is at least one dataset (dataframe) containing the association data (with columns \code{CHROM,POS,P} in upper or lowercase)
 }
 \examples{
+\dontrun{
 locuszoom(R2_CD_UKBB)
+}
 }
