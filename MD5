@@ -1,6 +1,6 @@
-220fef8d9d846205a44d0af8b0f0eb2e *DESCRIPTION
+3707d397dcedc5e0940651a346980b27 *DESCRIPTION
 76e57bf4cb6562898024c10b6da0d720 *NAMESPACE
-1603e50784fc3bb70eca7665841cb516 *NEWS.md
+248fac4876053a2fcf854023be987644 *NEWS.md
 d4270759535e873742f4ecc34bad9882 *R/dat_checks.R
 1c17e7354f16f107ba6c005b491e592f *R/data.R
 e08143b6e7c30ca5dfd4d5851e1b3e77 *R/deprec_funcs.R
@@ -8,12 +8,12 @@ e08143b6e7c30ca5dfd4d5851e1b3e77 *R/deprec_funcs.R
 65f8327c8ab45fcbb97eff1957a354d0 *R/exonplot.R
 c255af312c7f82af499bd2c6fcc45a4a *R/geneplot.R
 cfb3745eb7ad84c3552a52868b79583d *R/get_genes_and_annotation.R
-98f4ec2a8908b1635a7fa07d34f0674d *R/get_plots.R
+714bc378e62650d701fd926c3615c14e *R/get_plots.R
 ecf4a197a4fdce5e32a994c704d086ee *R/globals.R
 719196ff1899e927ffdc3a1c71b8dc56 *R/locuszoomplot.R
-410626d305cd419cbd9bf18b6d858ac2 *R/manhattan.R
+44ee63b1f92088ad46e0e39226b73a85 *R/manhattan.R
 af88339d23b964c97a7726f2ea0f2d2b *R/miscellaneous.R
-5a4feda195a6e34590c0f4f336089bbb *R/plot_functions.R
+08c5ed5d7f0cdd6b49756a4a873cc77f *R/plot_functions.R
 9a26eded1abcd28441b978a7cb1f9fa0 *R/qqtopr.R
 23ccb92acab06523d678a401c3784277 *R/regionplot.R
 a69efe19d8ec7164a7871957f9aaca2d *R/setters_and_getters.R
@@ -70,7 +70,7 @@ cd4339578eac21e15bdaca5f8e4624c5 *man/get_snps_within_region.Rd
 f635ca499cfb036223a3e8587fa85374 *man/get_top_snp.Rd
 f7ab2bef9311d0147d72fc83b92a796e *man/get_topr_colors.Rd
 bb804d02c49601a059390e24ea0ab0ad *man/locuszoom.Rd
-e2c43372dd8e7370bdffd3767a613c6b *man/manhattan.Rd
+374c413ac91e3744adbacc1a2ce25b07 *man/manhattan.Rd
 eda0eff05ecd34f7f2a4ddd756e5224c *man/match_alleles.Rd
 e591504f68fe81e328563ae466e48d21 *man/match_by_alleles.Rd
 9390a38b5a9cbf201ea9bf57a1cc9549 *man/match_by_pos.Rd
@@ -79,4 +79,8 @@ a7d5899de6d3437efea850b834fe04b3 *man/qqtopr.Rd
 6806d36d55fefc0d2c3cea5a00154d93 *man/regionplot.Rd
 cc99e43a2d495db8bef6577098062634 *man/topr.Rd
 da47d637b1941358e1aa425e90e9fc5b *tests/testthat.R
-05f96672f4e3e57bf2aa847c2549b4de *tests/testthat/test-dummy.R
+025e7334c8a5ab529332b75b97ec1f57 *tests/testthat/test-locuszoom.R
+5efa883963e604f3d8f2f4f6c84d1ea7 *tests/testthat/test-manhattan.R
+ede39c9fbd2c1f0eb7bfddfaca5f5bfe *tests/testthat/test-regionplot.R
+37aeb0270c64478fc4382787be2ae3cf *tests/testthat/test-test-datasets.R
+f1a79ddb3ceef98d633f55209bdf5e5f *tests/testthat/test-utils.R
