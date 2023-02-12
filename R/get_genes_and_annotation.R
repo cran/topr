@@ -17,7 +17,7 @@
 #' @examples
 #' \dontrun{
 #' get_genes_in_region(region="chr16:50593587-50834041")
-#'} 
+#'}
 
 
 get_genes_in_region <- function(chr=chr, xmin=xmin,xmax=xmax,protein_coding_only=F, show_exons=F,show_genes=T, build=38, region=NULL){

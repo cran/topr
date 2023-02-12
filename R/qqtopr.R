@@ -11,12 +11,14 @@
 #' @param color A string or vector of strings setting the color's for the input datasets
 #' @param breaks A number setting the breaks for the axes
 #' @inheritParams manhattan
+#'
+#' @return ggplot
+#' @export
+#' 
 #' @examples
 #' \dontrun{
 #' qqtopr(CD_UKBB)
 #' }
-#' @return ggplot
-#' @export
 #' 
 qqtopr <- function(dat, scale = 1, n_variants = 0, breaks = 15, title=NULL, color=get_topr_colors(),size=1,
                    legend_name="",legend_position="right", legend_labels=NULL,

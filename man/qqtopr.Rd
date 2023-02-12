@@ -67,4 +67,5 @@ Required parameter is at least one dataset (dataframe) containing the associatio
 \dontrun{
 qqtopr(CD_UKBB)
 }
+
 }
