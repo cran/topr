@@ -1,6 +1,6 @@
-3bf1889d4eca73ff610901f7a01f6f01 *DESCRIPTION
+e9819adb2e3c080bedd823e3ef430df6 *DESCRIPTION
 76e57bf4cb6562898024c10b6da0d720 *NAMESPACE
-5dbbfd3cc2fbf68abb8bdc684ff8ef54 *NEWS.md
+2b30d712d6c9d506c978abe903c49a40 *NEWS.md
 c061e24f9cb8d7f21c5c732b420ad47e *R/dat_checks.R
 60a120029ca3545fbdcd3be214a7e7a2 *R/data.R
 4361c9bd150840f60d12a2127f902b61 *R/deprec_funcs.R
@@ -15,8 +15,8 @@ e9c8ab6735d32cf9d71141307838a4dd *R/locuszoomplot.R
 d62d3ec2cfd3e6e2b27605e35d048ca3 *R/miscellaneous.R
 283484b5ea2cf16871fe85f3a08088c6 *R/plot_functions.R
 886be20a1f96a9da81fdff1746b5c3e0 *R/qqtopr.R
-6e4d5028de5961fa31ae5f5b1b60ea15 *R/regionplot.R
-0d8aaa10ccb8da143c2602ea6042cf4d *R/setters_and_getters.R
+bb283cc84faa6c5d50437d0a86debe02 *R/regionplot.R
+d2ab177c6f64fc405d635102131a4cc5 *R/setters_and_getters.R
 bc42ae32a7f7a11fb9c2d80193873365 *R/sysdata.rda
 d28c4c0c6e51a60e279db7d8a0442b2b *R/topr.R
 25f9987bd2a05c53fc34b70e55a4f87c *R/utils-pipe.R
