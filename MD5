@@ -1,9 +1,9 @@
-b6b63f78e7f6a9b1c973aa17831886f3 *DESCRIPTION
+91e7caeae170e3ca4d591e4a9fd257ae *DESCRIPTION
 76e57bf4cb6562898024c10b6da0d720 *NAMESPACE
-8b2bf6768a44717acd104afebc862000 *NEWS.md
+e652762667166e6988cc5a2ed60080a8 *NEWS.md
 c061e24f9cb8d7f21c5c732b420ad47e *R/dat_checks.R
 60a120029ca3545fbdcd3be214a7e7a2 *R/data.R
-4361c9bd150840f60d12a2127f902b61 *R/deprec_funcs.R
+d5a9fe5edc7b5efdf8edcb2d2e228588 *R/deprec_funcs.R
 a13016a9560ac591a1b10ac7924fc9db *R/effectplot.R
 7acce47d87e598bb219a4cf817e0efe7 *R/exonplot.R
 c255af312c7f82af499bd2c6fcc45a4a *R/geneplot.R
@@ -16,7 +16,7 @@ d62d3ec2cfd3e6e2b27605e35d048ca3 *R/miscellaneous.R
 283484b5ea2cf16871fe85f3a08088c6 *R/plot_functions.R
 886be20a1f96a9da81fdff1746b5c3e0 *R/qqtopr.R
 bb283cc84faa6c5d50437d0a86debe02 *R/regionplot.R
-7e61cebb74bd09ed7460afc688adcd76 *R/setters_and_getters.R
+c2f5eb4c7439e84f09bb56a7e3543654 *R/setters_and_getters.R
 bc42ae32a7f7a11fb9c2d80193873365 *R/sysdata.rda
 d28c4c0c6e51a60e279db7d8a0442b2b *R/topr.R
 25f9987bd2a05c53fc34b70e55a4f87c *R/utils-pipe.R

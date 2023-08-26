@@ -1,6 +1,6 @@
 Package: topr
 Title: Create Custom Plots for Viewing Genetic Association Results
-Version: 1.1.7
+Version: 1.1.8
 Authors@R: c(
     person("Thorhildur", "Juliusdottir", role = c("cph","aut", "cre"),email = "totajuliusd@gmail.com"),
     person("Andri", "Stefansson", role = "aut", email = "andrimarstefansson@gmail.com")
@@ -20,9 +20,9 @@ Imports: ggplot2 (>= 3.3.2), dplyr (>= 1.0.2), stringr (>= 1.4.0),
         1.5), utils, tidyr, toprdata
 Depends: R (>= 3.5.0)
 NeedsCompilation: no
-Packaged: 2023-05-23 10:07:37 UTC; tota
+Packaged: 2023-08-26 19:17:48 UTC; tota
 Author: Thorhildur Juliusdottir [cph, aut, cre],
   Andri Stefansson [aut]
 Maintainer: Thorhildur Juliusdottir <totajuliusd@gmail.com>
 Repository: CRAN
-Date/Publication: 2023-05-23 11:00:03 UTC
+Date/Publication: 2023-08-26 19:40:02 UTC
