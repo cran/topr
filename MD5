@@ -1,6 +1,6 @@
-91e7caeae170e3ca4d591e4a9fd257ae *DESCRIPTION
-76e57bf4cb6562898024c10b6da0d720 *NAMESPACE
-e652762667166e6988cc5a2ed60080a8 *NEWS.md
+746714711c4345293d78704e92d01fb0 *DESCRIPTION
+043b98460f9d5130bcba3a3f93836cc1 *NAMESPACE
+bb08c52ffa081b0ba4324bca9031e004 *NEWS.md
 c061e24f9cb8d7f21c5c732b420ad47e *R/dat_checks.R
 60a120029ca3545fbdcd3be214a7e7a2 *R/data.R
 d5a9fe5edc7b5efdf8edcb2d2e228588 *R/deprec_funcs.R
@@ -11,12 +11,12 @@ c255af312c7f82af499bd2c6fcc45a4a *R/geneplot.R
 714bc378e62650d701fd926c3615c14e *R/get_plots.R
 ecf4a197a4fdce5e32a994c704d086ee *R/globals.R
 e9c8ab6735d32cf9d71141307838a4dd *R/locuszoomplot.R
-7c624804d83d57ba86c292cbba76fa54 *R/manhattan.R
-d62d3ec2cfd3e6e2b27605e35d048ca3 *R/miscellaneous.R
-283484b5ea2cf16871fe85f3a08088c6 *R/plot_functions.R
+4b9e0ebd4a7ac37cd37ab6802cf6e8ff *R/manhattan.R
+1d067b1821f2ad37e0f04c8ad358609d *R/miscellaneous.R
+a54d8f12e81767d810a994a27ae41a68 *R/plot_functions.R
 886be20a1f96a9da81fdff1746b5c3e0 *R/qqtopr.R
-bb283cc84faa6c5d50437d0a86debe02 *R/regionplot.R
-c2f5eb4c7439e84f09bb56a7e3543654 *R/setters_and_getters.R
+d2180760b5253c4f6c183bff9ada09a1 *R/regionplot.R
+c5a94a485642c47ee28d3713f5a7f830 *R/setters_and_getters.R
 bc42ae32a7f7a11fb9c2d80193873365 *R/sysdata.rda
 d28c4c0c6e51a60e279db7d8a0442b2b *R/topr.R
 25f9987bd2a05c53fc34b70e55a4f87c *R/utils-pipe.R
@@ -69,7 +69,7 @@ cd4339578eac21e15bdaca5f8e4624c5 *man/get_snps_within_region.Rd
 f635ca499cfb036223a3e8587fa85374 *man/get_top_snp.Rd
 f7ab2bef9311d0147d72fc83b92a796e *man/get_topr_colors.Rd
 19022ef9133a99db9066a03f1ec0d44f *man/locuszoom.Rd
-993c0f98c95a5393c8cd405e9a9d5af0 *man/manhattan.Rd
+623ef8107144836c2baa8e3a97777d46 *man/manhattan.Rd
 eda0eff05ecd34f7f2a4ddd756e5224c *man/match_alleles.Rd
 59682033e07d0781f8e2f7c8c24b6466 *man/match_by_alleles.Rd
 b9d6d007af6db6282db8a4b1228ba286 *man/match_by_pos.Rd
