@@ -44,7 +44,7 @@ set_color <- function(dat,color,shades_alpha=0.5, use_shades=T, chr_lightness=0.
         }
         else{                  
           even_chr_color <- lightness(color[i], get_chr_lightness(chr_lightness,i) )
-          dat[[i]]$color <- ifelse((dat[[i]]$CHROM %% 2) == 0, even_chr_color , color[i]) 
+          dat[[i]]$color <- ifelse((as.numeric(dat[[i]]$CHROM) %% 2) == 0, even_chr_color , color[i]) 
         }
       }
       else
@@ -131,43 +131,82 @@ set_log10p <- function(dat, ntop){
   return(dat)
 }
 
-## Getters
+add_log10p_wo_trans <- function(dat, ntop){
+  for(i in seq_along(dat)){
+    df <- dat[[i]]
+    if(ntop > length(dat)){ ntop <- length(dat)}
+    if(i <= ntop){
+      dat[[i]] <- df %>% dplyr::mutate(log10p=P)
+      
+    }else{
+      dat[[i]] <- df %>% dplyr::mutate(log10p=P)
+    }
+  }
+  return(dat)
+}
+
+
+get_db <- function(build){
+   if(is.character(build) || is.numeric(build)){
+    if(tolower(build) %in% c("38","hg38","grch38"))
+      db <- enshuman::hg38
+    else if(tolower(build) %in% c("37","hg37","grch37"))
+      db <- enshuman::hg37
+    else{
+      ext_db <- get(build)
+      if(is.data.frame(class(ext_db))){
+         db <- ext_db
+      }
+      else if(is.list(class(ext_db))){
+        warning(paste("The provided build is a list. It has to be either a number, string or a data frame!\n Using the default build enshuman::hg38 instead" ))
+        db <- enshuman::hg38
+      }
+      else{
+        warning(paste("Could not find a build called [",build,"] to use for annotation. \n Using the default build GRCh38 (build=38) instead. ", sep=""))
+        db <- enshuman::hg38
+      }
+    }
+  }
+  else if(is.data.frame(build)){
+       db <- build 
+  }
+  else if(is.list(class(build))){
+    warning(paste("The provided build is a list. It has to be either a number, string or a data frame! \n Using the default build GRCh38 (build=38) instead."))
+    db <- enshuman::hg38
+    }
+  else{
+    warning(paste("The build is not in the correct format. It has to be either a number,string or a data frame!\nUsing the default build GRCh38 (build=38) instead. ", sep=""))
+    db <- enshuman::hg38
+  }
+  return(db)    
+}
+
 
 get_genes <- function(chr,xmin=0,xmax=NULL,protein_coding_only=FALSE, build=38){
-  chr <- gsub("chr", "", chr)
-  chr <- paste("chr",chr,sep="")
   if(is.null(xmax)){
     xmax <- chr_lengths[chr_lengths$V1 == chr,]$V2
   }
-  if(chr == "chr23"){ chr="chrX"}
+  chr <- gsub("chr", "", chr)
   if(chr == "23"){ chr="X"}
-  if(build == "38")
-    genes <- toprdata::ENSGENES %>% dplyr::filter(chrom==chr)  %>% dplyr::filter(gene_start>xmin & gene_start<xmax | gene_end > xmin & gene_end < xmax | gene_start < xmin & gene_end>xmax | gene_start == xmin | gene_end == xmax)
-  else if(build == "37")
-    genes <- toprdata::ENSGENES_37 %>% dplyr::filter(chrom==chr)  %>% dplyr::filter(gene_start>xmin & gene_start<xmax | gene_end > xmin & gene_end < xmax | gene_start < xmin & gene_end>xmax | gene_start == xmin | gene_end == xmax)
-  else
-    print("The requested build does not exist. Available genome builds are: 37 and 38")
+  
+  genes <-  get_db(build=build) %>% dplyr::filter(chrom==chr) %>% dplyr::select(-exon_chromstart,-exon_chromstart) %>% dplyr::filter(gene_start>xmin & gene_start<xmax | gene_end > xmin & gene_end < xmax | gene_start < xmin & gene_end>xmax | gene_start == xmin | gene_end == xmax)
+
   if(protein_coding_only)  
       genes <- genes %>% dplyr::filter(biotype=="protein_coding")
-  return(genes)
+   return(genes)
 }
 
 get_exons <- function(chr,xmin=0,xmax=NULL,protein_coding_only=FALSE, build=38){
-  genes <- get_genes(chr,xmin,xmax, build=build)
-
-  if(protein_coding_only){
-    if(build == "38")
-      exons <- merge(toprdata::ENSEXONS, genes %>% dplyr::select(gene_symbol,biotype,chrom,gene_start,gene_end) %>% dplyr::filter(biotype=="protein_coding"), by=c("gene_symbol","chrom","gene_start","gene_end"))
-    else if(build == "37")
-      exons <- merge(toprdata::ENSEXONS_37, genes %>% dplyr::select(gene_symbol,biotype,chrom,gene_start,gene_end) %>% dplyr::filter(biotype=="protein_coding"), by=c("gene_symbol","chrom","gene_start","gene_end"))
+  if(is.null(xmax)){
+    xmax <- chr_lengths[chr_lengths$V1 == chr,]$V2
   }
-  else{
-    if(build == "38")
-      exons <- merge(toprdata::ENSEXONS, genes %>% dplyr::select(gene_symbol,biotype,chrom,gene_start,gene_end), by=c("gene_symbol","chrom","gene_start","gene_end"))
-    else if(build == "37")
-      exons <- merge(toprdata::ENSEXONS_37, genes %>% dplyr::select(gene_symbol,biotype,chrom,gene_start,gene_end), by=c("gene_symbol","chrom","gene_start","gene_end"))
-  }
-  #rename chromstart exon_chromstart | rename chromend exon_chromend)",sep=""))
+  chr <- gsub("chr", "", chr)
+  if(chr == "23"){ chr="X"}
+  
+  exons <- get_db(build=build)  %>% dplyr::filter(chrom==chr)  %>% dplyr::filter(gene_start>xmin & gene_start<xmax | gene_end > xmin & gene_end < xmax | gene_start < xmin & gene_end>xmax | gene_start == xmin | gene_end == xmax)
+  
+  if(protein_coding_only)  
+    exons <- exons %>% dplyr::filter(biotype=="protein_coding")
   return(exons)
 }
 
@@ -266,9 +305,9 @@ get_ymin <- function(dat){
   return(ymin)
 }
 
-get_chr_lengths_and_offsets <- function(include_chrX=FALSE, dat, get_chr_lengths_from_data){
+get_chr_lengths_and_offsets <- function(dat, get_chr_lengths_from_data){
   if(get_chr_lengths_from_data){
-    chrs <- get_chrs_from_data(dat)
+    chrs <- get_chrs_from_data(dat) %>% as.numeric()
     chrs2plot <- get_max_value_by_chr_from_data(dat, chrs)
   }
   else{
@@ -278,7 +317,7 @@ get_chr_lengths_and_offsets <- function(include_chrX=FALSE, dat, get_chr_lengths
     chr_lengths[chr_lengths$CHROM=="X",'CHROM'] <- "23"
     chr_lengths[chr_lengths$CHROM=="Y",'CHROM'] <- "24"
     chr_lengths$CHROM <- as.integer(chr_lengths$CHROM)
-    chrs <- get_chrs_from_data(dat)
+    chrs <- c(1:23)
     chrs2plot <- chr_lengths %>% filter(CHROM %in% chrs)
   }
   chr_lengths_and_offsets <- chrs2plot %>% dplyr::group_by(CHROM) %>% dplyr::summarize(m=V2) %>% dplyr::mutate(offset=cumsum(as.numeric(lag(m, default=0))))
@@ -286,51 +325,45 @@ get_chr_lengths_and_offsets <- function(include_chrX=FALSE, dat, get_chr_lengths
 }
 
 
-
-get_ticknames <- function(df){
-  no_chrs <- ifelse("chrX" %in% df$CHROM || "X" %in% df$CHROM || "chr23" %in% df$CHROM || "23" %in% df$CHROM, 23, 22)
-  include_chrX <- T
-  if(no_chrs == 23){
-    ticknames <- c(1:16, '',18, '',20, '',22, 'X')
-  }else{
-    ticknames <- c(1:16, '',18, '',20, '',22)
-    include_chrX <- F
-  }
-  chr_lengts_and_offsets <- get_chr_lengths_and_offsets(include_chrX)
-  tickpos <-chr_lengts_and_offsets %>% dplyr::group_by(CHROM)%>%
-                  dplyr::summarize(pm=offset+(m/2))%>%
-    #    dplyr::summarize(pm=mean(POS))
-                                dplyr::pull(pm)
-
-  names(tickpos) <- NULL
-  return(list(names=ticknames, pos=tickpos))
-}
-
-get_ticks <- function(dat,chr_lengths_and_offsets ){
+get_ticks <- function(dat,chr_lengths_and_offsets,chr_ticknames,chr_map, show_all_chrticks=FALSE, hide_chrticks_from_pos=17, hide_chrticks_to_pos=NULL, hide_every_nth_chrtick=2, get_chr_lengths_from_data=T){
   df <- dat[[1]]
   for(i in seq_along(dat)){ if(length(unique(dat[[i]]$CHROM))  > length(unique(df$CHROM))){ df <- dat[[i]] } }
-  ticknames <- c(1:16, '',18, '',20, '',22, 'X')
+  ticknames=NULL
+   if(!is.null(chr_ticknames)){
+    if(length(names(chr_map)) == length(chr_ticknames))
+      ticknames=chr_ticknames
+    else
+      warning(paste0("The length of the provided chr_ticknames vector [",length(chr_ticknames),"] does not match the number of chromosomes in the dataset(s) [", length(chr_map), "]. Using the default chr_ticknames instead!!"))
+  }
+  if(is.null(chr_ticknames)){
+    if(get_chr_lengths_from_data){
+    chrs <- names(chr_map)
+    numeric_chrs <- chrs[grepl('^-?[0-9.]+$', chrs)] %>% as.numeric() %>% sort()
+    non_numeric_chrs <- chrs[!grepl('^-?[0-9.]+$', chrs)]
+    chr_order <- append(c(numeric_chrs), c(non_numeric_chrs))
+    if(is.null(hide_chrticks_to_pos))
+      hide_chrticks_to_pos <- length(numeric_chrs)
+    chr_ticknames <- chr_order
+  
+    if(length(numeric_chrs) > hide_chrticks_from_pos){
+      if(! show_all_chrticks){
+        hide_chr <- numeric_chrs[seq(hide_chrticks_from_pos, hide_chrticks_to_pos, hide_every_nth_chrtick)]
+        chr_ticknames[(chr_ticknames %in% hide_chr) == TRUE] <- ""
+      }
+      else{
+        chr_ticknames <- chr_order
+      }
+    }
+    ticknames <- chr_ticknames
+    }
+    else{
+      ticknames <- c(1:16, '',18, '',20, '',22, 'X')
+    }
+  }
  tickpos <-chr_lengths_and_offsets %>% dplyr::group_by(CHROM)%>%
     dplyr::summarize(pm=offset+(m/2))%>%
     dplyr::pull(pm)
   names(tickpos) <- NULL
-  if(length(tickpos) < length(ticknames)){
-    ticknames=c()
-    if(length(chr_lengths_and_offsets$CHROM) > 19){
-      for(i in 1:length(chr_lengths_and_offsets$CHROM)){
-        if(chr_lengths_and_offsets$CHROM[i] < 17)
-          ticknames <- c(ticknames, chr_lengths_and_offsets$CHROM[i])
-        else{
-          if(chr_lengths_and_offsets$CHROM[i] %% 2 == 0)
-            ticknames <- c(ticknames, chr_lengths_and_offsets$CHROM[i])
-          else
-            ticknames <- c(ticknames, '')
-        }
-      }
-    }
-    else
-      ticknames <- c(1:length(chr_lengths_and_offsets$CHROM))
-  }
   return(list(names=ticknames, pos=tickpos))
 }
 
@@ -454,15 +487,7 @@ get_lead_snps <- function(df, thresh=5e-08,region_size=1000000,protein_coding_on
 #' }
 #'
 get_genes_by_Gene_Symbol <- function(genes, chr=NULL, build=38){
-  if(build == "38"){
-    genes_df <- toprdata::ENSGENES %>% dplyr::filter(gene_symbol %in% genes)
-  }else if(build == "37"){ 
-    genes_df <- toprdata::ENSGENES_37 %>% dplyr::filter(gene_symbol %in% genes)
-  }else{
-    warning(paste("Build [",build,"] not found!!!!!!  Using build 38 GRCh38 instead ", sep=""))
-    genes_df <- toprdata::ENSGENES %>% dplyr::filter(gene_symbol %in% genes)
-  }
-  
+  genes_df <- get_db(build) %>% dplyr::filter(gene_symbol %in% genes) 
   if(! is.null(chr)){
     chr <- gsub('chr','',chr)
     genes_df <- genes_df %>% dplyr::filter(chrom == paste("chr",chr,sep=""))
@@ -493,22 +518,14 @@ get_genes_by_Gene_Symbol <- function(genes, chr=NULL, build=38){
 #'
 
 get_gene_coords  <- function(gene_name,chr=NULL, build=38){
+  gene <- get_db(build) %>% dplyr::filter(gene_symbol == gene_name) %>% dplyr::select(-exon_chromstart,-exon_chromend)
   if(! is.null(chr)){
     chr <- gsub("chr", "", chr)
     chr <- paste("chr",chr,sep="")
-    if(build=="38")
-      gene <- toprdata::ENSGENES %>% dplyr::filter(chrom == chr) %>% dplyr::filter(gene_symbol == gene_name)
-    else if(build=="37")
-      gene <- toprdata::ENSGENES_37 %>% dplyr::filter(chrom == chr) %>% dplyr::filter(gene_symbol == gene_name)
-  }
-  else{
-    if(build=="38")
-      gene <- toprdata::ENSGENES %>% dplyr::filter(gene_symbol == gene_name)
-    else if(build=="37")
-     gene <- toprdata::ENSGENES_37 %>% dplyr::filter(gene_symbol == gene_name)
+    gene <- gene  %>% dplyr::filter(chrom == chr) 
   }
   if(is.null(gene)){
-    print(paste("Could not find a gene with the gene name: [", gene_name, "]", sep=""))
+    print(paste("Could not find a gene with the gene name: [", gene_name, "] in build ",build, sep=""))
   }
   return(gene)
 }

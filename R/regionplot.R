@@ -40,7 +40,7 @@
 
 regionplot <- function(df, ntop=10, annotate=NULL, xmin=0, size=2, shape=19, alpha=1,label_size=4, annotate_with="ID",
                        color=get_topr_colors(), axis_text_size=11,axis_title_size=12,title_text_size=13, show_genes=NULL, show_overview=TRUE,
-                       show_exons=FALSE,max_genes=200, sign_thresh=5e-08, sign_thresh_color="red", sign_thresh_label_size=3.5,
+                       show_exons=NULL,max_genes=200, sign_thresh=5e-08, sign_thresh_color="red", sign_thresh_label_size=3.5,
                        xmax=NULL,ymin=NULL,ymax=NULL,protein_coding_only=FALSE,region_size=1000000,gene_padding=100000,angle=0,legend_title_size=12,legend_text_size=11,
                        nudge_x=0.01,nudge_y=0.01, rsids=NULL, variant=NULL,rsids_color=NULL,legend_name="",legend_position="right",
                        chr=NULL,vline=NULL,show_gene_names=NULL,legend_labels=NULL,gene=NULL, title=NULL, label_color=NULL,locuszoomplot=FALSE,
@@ -48,12 +48,11 @@ regionplot <- function(df, ntop=10, annotate=NULL, xmin=0, size=2, shape=19, alp
                        rsids_with_vline=NULL, annotate_with_vline=NULL,show_gene_legend=TRUE, unit_main=7, unit_gene=2, unit_overview=1.25, verbose=NULL,
                        gene_color=NULL,segment.size=0.2,segment.color="black",segment.linetype="solid", max.overlaps=10, unit_ratios=NULL, 
                        extract_plots=FALSE,label_fontface="plain",label_family="",gene_label_fontface="plain",gene_label_family="",build=38,
-                       label_alpha=1, vline_color="grey",vline_linetype="dashed", vline_alpha=1,vline_size=0.5){
+                       label_alpha=1, vline_color="grey",vline_linetype="dashed", vline_alpha=1,vline_size=0.5, log_trans_p=TRUE){
   # three plots, overview_plot, main_plot and gene_plot
   #only include overview plot if df region is larger than the region between xmin and xmax
-  if (!missing(show_exons)) {
+  if (!missing(show_exons)) 
     deprecated_argument_msg(show_exons)
-  }
   annot_with_vline <- FALSE
   if(! is.numeric(region_size)){
     region_size <- convert_region_size(region_size)
@@ -67,7 +66,13 @@ regionplot <- function(df, ntop=10, annotate=NULL, xmin=0, size=2, shape=19, alp
     stop("Regional argument is missing (either gene, variant, region or the 3 arguments (chr,xmin,xmax) has to be provided as input to this function")
   }
   else{
-    dat <- dat_check(df,verbose=verbose,locuszoomplot=locuszoomplot) %>% set_log10p(ntop)  %>% set_size_shape_alpha(size, shape, alpha, locuszoomplot = locuszoomplot)
+    dat <- dat_check(df,verbose=verbose,locuszoomplot=locuszoomplot) %>% set_size_shape_alpha(size, shape, alpha, locuszoomplot = locuszoomplot)
+    if(log_trans_p) 
+      dat <- dat %>% set_log10p(ntop)
+    else{
+      print("Not log transforming the P values since log_trans_p is set to FALSE! ")
+      dat <- dat %>% add_log10p_wo_trans(ntop)
+    }
    if(! locuszoomplot){
       dat <- dat %>% set_color(color)
     }
@@ -202,7 +207,13 @@ if(!is.null(sign_thresh)){
   if(is.null(show_genes)){
     if(xmax-xmin < 1000001){
       show_genes <- FALSE
-    }else{show_genes <- TRUE}
+    }else{
+      msg <- "Showing gene structure since the size of the region is larger than 1000001. To display exon structure instead, set the show_genes argument to FALSE (show_genes=FALSE)."
+     if(is.null(verbose))
+          print(msg)
+     else if(verbose)
+        print(msg)
+      show_genes <- TRUE}
   }
   ngenes <- 0
 
