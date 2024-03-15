@@ -1,3 +1,7 @@
+# 2.0.1
+* REF and ALT error message fixed when there are p-values below .Machine$double.xmin in the input dataset
+* The limits= argument added in the scale_color_manual ggplot2 function for it to work as expected with ggplot2 v3.5
+
 # 2.0.0
 * topr can now be used with any species
 * argument added to set the color of the diagonal line in qqtopr
