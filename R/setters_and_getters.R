@@ -81,6 +81,8 @@ set_size <- function(dat,size, locuszoomplot = locuszoomplot){
     }
     if(locuszoomplot & ("R2" %in% colnames(dat[[i]]))){
       dat[[i]]$size <- ifelse(dat[[i]]$R2 == 1, dat[[i]]$size*1.5, dat[[i]]$size)
+      #handle NA values for R2
+      dat[[i]]$size[is.na(dat[[i]]$size)] <- size
     }
   }
   return(dat)
@@ -112,6 +114,7 @@ set_shape <- function(dat,shape,locuszoomplot=F){
     }
     if(locuszoomplot & ("R2" %in% colnames(dat[[i]]))){
         dat[[i]]$shape <- ifelse(dat[[i]]$R2 == 1, 18, dat[[i]]$shape)
+        dat[[i]]$shape[is.na(dat[[i]]$shape)] <- shape
     }
   }
   return(dat)
@@ -388,6 +391,57 @@ get_pos_with_offset <- function(df,offsets){
 #' \code{get_lead_snps()} Get the top variants within 1 MB windows of the genome with association p-values below the given threshold 
 #'
 #'
+#' @param df Dataframe, GWAS summary statistics
+#' @param genome_wide_thresh A number. P-value threshold for genome wide significant loci (5e-08 by default)
+#' @param suggestive_thresh A number. P-value threshold for suggestive loci (1e-06 by default)
+#' @param flank_size A number (default = 1e6). The size of the flanking region for the significant and suggestitve snps.
+#' @param region_size A number (default = 1e6). The size of the region for top snp search. Only one snp per region is returned.
+#' @return List of genome wide and suggestive loci.
+#' @export
+#' @examples
+#' \dontrun{
+#' get_sign_and_sugg_loci(CD_UKBB)
+#' }
+#'
+
+get_sign_and_sugg_loci <- function(df, genome_wide_thresh = 5e-8, suggestive_thresh = 1e-6, flank_size = 1e6, region_size = 1e6) {
+  genome_wide_snps <- data.frame()
+  suggestive_snps <- data.frame()
+  leads <- df |> get_lead_snps(thresh = suggestive_thresh, region_size = region_size, verbose = FALSE)
+   if (nrow(leads) == 0) {
+    return(list(genome_wide_snps = genome_wide_snps, suggestive_snps = suggestive_snps))
+  }
+  genome_wide <- leads |> filter(P < genome_wide_thresh)
+  suggestive <- leads |> filter(P < suggestive_thresh & P >= genome_wide_thresh)
+  if (nrow(genome_wide) != 0) {
+    for (i in 1:nrow(genome_wide)) {
+      genome_wide_snps <- bind_rows(genome_wide_snps, df |>
+                                      filter(CHROM == genome_wide$CHROM[i] & POS >= genome_wide$POS[i] - (flank_size/2) & POS <= genome_wide$POS[i] + (flank_size/2))) |>
+        distinct()
+    }
+  }
+  if (nrow(suggestive) != 0) {
+    # remove suggestive that are also genome wide snps
+    suggestive <- suggestive |> anti_join(genome_wide, by = c("CHROM", "POS"))
+    if (nrow(suggestive) != 0) {
+      for (i in 1:nrow(suggestive)) {
+        suggestive_snps <- bind_rows(suggestive_snps, df |>
+                                       filter(CHROM == suggestive$CHROM[i] & POS >= suggestive$POS[i] - (flank_size/2) & POS <= suggestive$POS[i] + (flank_size/2))) |>
+          distinct()
+      }
+    }
+  }
+  return(list(genome_wide_snps = genome_wide_snps, suggestive_snps = suggestive_snps))
+}
+
+
+#' Get the index/lead variants
+#'
+#' @description
+#'
+#' \code{get_lead_snps()} Get the top variants within 1 MB windows of the genome with association p-values below the given threshold 
+#'
+#'
 #' @param df Dataframe
 #' @param thresh A number. P-value threshold, only extract variants with p-values below this threshold (5e-08 by default)
 #' @param protein_coding_only Logical, set this variable to TRUE to only use protein_coding genes for annotation
@@ -432,16 +486,18 @@ get_lead_snps <- function(df, thresh=5e-08,region_size=1000000,protein_coding_on
     df <- df %>% dplyr::filter(biotype == "protein_coding")
   }
   if(nrow(df) > 0){
-    df$tmp <- NA
-    if(max(df$POS)-min(df$POS) <= region_size){
-      df$tmp<- 1
-    }else{
-      for(row in seq_len(nrow(df))){
-        df$tmp <- base::round(df$POS/region_size)
-      }
-    }
-    lead_snps <- df %>% dplyr::group_by(CHROM,tmp) %>% dplyr::arrange(P) %>% distinct(P, .keep_all=T) %>% dplyr::filter(P == min(P))
-    variants <- dplyr::ungroup(lead_snps)%>% dplyr::distinct(CHROM,POS, .keep_all = T)
+  	lead_snps <- do.call(rbind,
+  		lapply(split(df, df$CHROM), function (df_by_chr) {
+  			res <- data.frame()
+  			df_by_chr <- dplyr::arrange(df_by_chr, P)
+  			while (nrow(df_by_chr) > 0) {
+  				lead_snp <- dplyr::slice(df_by_chr, 1)
+  				res <- dplyr::bind_rows(res, lead_snp)
+  				df_by_chr <- dplyr::filter(df_by_chr, abs(POS - lead_snp$POS) > region_size / 2)
+  			}
+  			res
+  		}))
+    variants <- lead_snps %>% dplyr::distinct(CHROM, POS, .keep_all = T)
     variants$color <-  dat[[1]][1,"color"]
     if(! is.null(verbose)){
       if(verbose){
@@ -460,9 +516,11 @@ get_lead_snps <- function(df, thresh=5e-08,region_size=1000000,protein_coding_on
   if("tmp" %in% colnames(variants)){
     variants <- variants %>% dplyr::select(-tmp)
   }
-  if(keep_chr & chrPrefix){
-    variants$CHROM <- gsub("(chr|CHR|Chr)","", variants$CHROM)
-    variants$CHROM  <- paste0("chr", variants$CHROM)
+  if(nrow(variants) > 0){
+    if(keep_chr & chrPrefix){
+      variants$CHROM <- gsub("(chr|CHR|Chr)","", variants$CHROM)
+      variants$CHROM  <- paste0("chr", variants$CHROM)
+    }
   }
   return(variants)
 }

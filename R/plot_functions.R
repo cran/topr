@@ -26,7 +26,7 @@ set_plot_text_sizes <- function(p1, axis_text_size=12, axis_title_size=12, legen
   return(p1)
 }
 add_title <- function(p1, title="", title_text_size=14,scale=1){
-  p1 <- p1 + ggtitle(title)
+  p1 <- p1 + ggtitle(title)  
   p1 <- p1 + theme(plot.title = element_text(size=title_text_size*scale))
   return(p1)
 }
@@ -162,7 +162,7 @@ add_sign_thresh_labels <- function(p1, sign_thresh=1e-09,sign_thresh_color="red"
     tmpdf <- rbind(tmpdf, data.frame(color=color, label=sign_thresh[[i]],ypos=-log10(sign_thresh[[i]])* 1.02,xpos=xmin))
 
   }
-  p1 <- p1+ggrepel::geom_text_repel(data=tmpdf, aes(x=xpos, y=ypos, label=label,color=color), nudge_y=0.02,size=sign_thresh_label_size*scale,
+  p1 <- p1+ggrepel::geom_text_repel(data=tmpdf, aes(x=xpos, y=ypos, label=label),color=color, nudge_y=0.02,size=sign_thresh_label_size*scale,
                                  max.iter=10000,direction="y")
 
 
@@ -191,7 +191,8 @@ get_rsids_from_df <- function(dat, rsids){
 }
 
 
-add_rsids <- function(p1,rsids_df, rsids_color=NULL, nudge_x=0.01, nudge_y=0.01, label_size=3.5, angle=0,label_color=NULL, scale=1, with_vline=F, label_fontface="plain",label_family="",segment.size=0.2,segment.color="black",segment.linetype="solid"){
+add_rsids <- function(p1,rsids_df, rsids_color=NULL, nudge_x=0.01, nudge_y=0.01, label_size=3.5, angle=0,label_color=NULL, scale=1, with_vline=F, label_fontface="plain",label_family="",segment.size=0.2,
+                      segment.color="black",segment.linetype="solid", vline_color="grey", vline_size=1){
   if(!is.null(label_color)){
     rsids_df$color <- label_color
   }
@@ -201,7 +202,7 @@ add_rsids <- function(p1,rsids_df, rsids_color=NULL, nudge_x=0.01, nudge_y=0.01,
   p1 <- p1+ggrepel::geom_text_repel(data=rsids_df, aes(x=POS, y=log10p, label=ID,color=color), nudge_x=nudge_x, nudge_y=nudge_y, size=label_size*scale, 
                                     angle=angle,max.iter=10000,direction="both",fontface=label_fontface, family=label_family)
   if(with_vline){
-    p1 <- p1 %>% add_vline(rsids_df$POS)
+    p1 <- p1 %>% add_vline(rsids_df$POS, vline_color = vline_color, vline_size = vline_size)
   }
   return(p1)
 }

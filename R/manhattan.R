@@ -83,6 +83,8 @@
 #' @param hide_chrticks_from_pos A number (default: 17). Hide every nth chromosome name on the x-axis FROM this position (chromosome number)
 #' @param hide_chrticks_to_pos A number (default: NULL). Hide every nth chromosome name on the x-axis TO this position (chromosome number). When NULL this variable will be set to the number of numeric chromosomes in the input dataset.
 #' @param hide_every_nth_chrtick A number (default: 2). Hide every nth chromosome tick on the x-axis (from the hide_chr_ticks_from_pos to the hide_chr_ticks_to_pos).
+#' @param downsample_cutoff A number (default: 0.05) used to downsample the input dataset prior to plotting. Sets the fraction of high p-value (default: P>0.05) markers to display on the plot.
+#' @param downsample_prop A number (default: 0.1) used to downsample the input dataset prior to plotting. Only a proportion of the variants (10% by default) with P-values higher than the downsample_cutoff will be displayed on the plot.
 #'
 #' @return ggplot object
 #' @export
@@ -95,7 +97,7 @@
 #' manhattan(CD_UKBB)
 #' }
 
-manhattan <- function(df, ntop=4, title="",annotate=NULL, color=get_topr_colors(),
+manhattan <- function(df, ntop=4, title="",annotate=NULL, color=NULL,
                    sign_thresh=5e-08,sign_thresh_color="red", sign_thresh_label_size=3.5, label_size=3.5, size=0.8,shape=19,alpha=1,
                    highlight_genes_color="darkred",highlight_genes_ypos=1.5,axis_text_size=12,axis_title_size=14, title_text_size=15,
                    legend_title_size=13,legend_text_size=12, protein_coding_only=TRUE,angle=0,
@@ -108,15 +110,20 @@ manhattan <- function(df, ntop=4, title="",annotate=NULL, color=get_topr_colors(
                   gene_label_fontface="plain",gene_label_family="",build=38,verbose=NULL,label_alpha=1,shades_line_alpha=1,vline=NULL,
                   vline_color="grey",vline_linetype="dashed", vline_alpha=1,vline_size=0.5,region=NULL, theme_grey=FALSE, xaxis_label="Chromosome",
                   use_shades=FALSE, even_no_chr_lightness=0.8, get_chr_lengths_from_data=TRUE, log_trans_p=TRUE,
-                  chr_ticknames=NULL, show_all_chrticks=FALSE, hide_chrticks_from_pos=17, hide_chrticks_to_pos=NULL, hide_every_nth_chrtick=2){
+                  chr_ticknames=NULL, show_all_chrticks=FALSE, hide_chrticks_from_pos=17, hide_chrticks_to_pos=NULL, hide_every_nth_chrtick=2,
+                  downsample_cutoff=0.05, downsample_prop=0.1){
     
     top_snps <- NULL
     genes_df <- NULL
     chr_map <- NULL
    
+    if(is.null(color)) color<-get_topr_colors()
+    
     if(theme_grey)
       use_shades=T
     dat <- dat_check(df, verbose=verbose, log_trans_p) 
+    if(downsample_prop < 1)
+      dat <- downsample(dat, downsample_cutoff, downsample_prop)
     
     if(! is.null(chr)){
       dat <- dat %>% filter_on_chr(chr)
@@ -221,8 +228,7 @@ manhattan <- function(df, ntop=4, title="",annotate=NULL, color=get_topr_colors(
   main_plot <- main_plot %>% set_plot_text_sizes(axis_text_size=axis_text_size,axis_title_size = axis_title_size, 
                                                  legend_text_size=legend_text_size, legend_title_size=legend_title_size,scale=scale)
 
-
-   #add the significance threshold/s
+  #add the significance threshold/s
   if(!is.null(sign_thresh)){
   main_plot <- main_plot %>% add_sign_thresh(sign_thresh = sign_thresh, sign_thresh_color = sign_thresh_color, using_ntop = using_ntop, 
                                              sign_thresh_linetype = sign_thresh_linetype, sign_thresh_size = sign_thresh_size,scale=scale) %>%
@@ -284,5 +290,100 @@ manhattan <- function(df, ntop=4, title="",annotate=NULL, color=get_topr_colors(
   
   main_plot <- change_axes(main_plot)
   return(main_plot)
+}
+
+
+#' Create a Manhattan plot highlighting genome-wide significant and suggestive loci
+#'
+#' @description
+#'
+#' \code{manhattanExtra()} displays association results for the entire genome on a Manhattan plot, highlighting genome-wide significant and suggestive loci.
+#' Required parameter is at least one dataset (dataframe) containing the association data (with columns \code{CHROM,POS,P} in upper or lowercase)
+#'
+#' All other input parameters are optional
+#'
+#' @param df Dataframe, GWAS summary statistics
+#' @param genome_wide_thresh A number. P-value threshold for genome wide significant loci (5e-08 by default)
+#' @param suggestive_thresh A number. P-value threshold for suggestive loci (1e-06 by default)
+#' @param flank_size A number (default = 1e6). The size of the flanking region for the significant and suggestitve snps.
+#' @param region_size A number (default = 1e6). The size of the region for gene annotation. Increase this number for sparser annotation and decrease for denser annotation.
+#' @param ymax Integer, max of the y-axis, (default value: \code{ymax=(max(-log10(df$P)) + max(-log10(df$P)) * .2))}
+#' @param ... Additional arguments passed to other plotting functions.
+#' @inheritParams manhattan
+#' @return ggplot object
+#' 
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' manhattanExtra(df)
+#' }
+#' 
+
+
+manhattanExtra <- function(df,genome_wide_thresh=5e-08, suggestive_thresh=1e-06, flank_size=1e6, region_size=1e6, sign_thresh_color=NULL, sign_thresh_label_size=NULL, show_legend=TRUE,label_fontface=NULL,
+                           nudge_y=NULL, ymax=NULL, sign_thresh=NULL, label_color=NULL, color=NULL, legend_labels=NULL, annotate=NULL, ...){
+ 
+   if(!is.data.frame(df) && is.list(df)){
+     if(is.list(df) & length(df)>1)
+        print("The manhattanExtra function only takes one input dataset. Using the first one.")
+      df <- as.data.frame(df[1])
+    }
+  
+  top_signals <- get_sign_and_sugg_loci(df, genome_wide_thresh = genome_wide_thresh, suggestive_thresh = suggestive_thresh, flank_size = flank_size, region_size = region_size)
+  if(is.null(color))
+    color <- c("grey80", "#0072B2","#D55E00")
+  if(is.null(annotate))
+    annotate = c(1e-100, suggestive_thresh, genome_wide_thresh)
+  if(is.null(sign_thresh_color))
+    sign_thresh_color="black"
+  if(is.null(sign_thresh_label_size))
+    sign_thresh_label_size <- 2.5
+  if(is.null(label_color))
+    label_color <- "black"
+  if(is.null(label_fontface))
+    label_fontface="bold.italic"
+  if(is.null(nudge_y))
+    nudge_y <- (max(-log10(df$P)) * .1)
+  if(is.null(ymax))
+    ymax <- (max(-log10(df$P)) + max(-log10(df$P)) * .2)
+  if(is.null(sign_thresh))
+    sign_thresh = c(suggestive_thresh,  genome_wide_thresh)
+  if(is.null(legend_labels))
+    legend_labels <- c("Non-significant", "Suggestive", "Genome-wide Significant")
+  
+  even_no_chr_lightness = c(0.8, 0.5, 0.5)
+  
+  if (nrow(top_signals$genome_wide_snps) == 0 & nrow(top_signals$suggestive_snps) == 0) {
+    index <- 1
+    dat <- df
+  }else if (nrow(top_signals$genome_wide_snps) == 0) {
+    index<-1:2  
+    dat <- list(df, top_signals$suggestive_snps)  
+  }else if (nrow(top_signals$suggestive_snps) == 0) {
+    index <- c(1,3)
+    dat <- list(df, top_signals$genome_wide_snps)
+  }else{
+    index <- 1:3
+    dat <- list(df, top_signals$suggestive_snps, top_signals$genome_wide_snps)
   }
+  manh <- manhattan(dat,
+                    annotate = annotate[index],
+                    region_size = region_size,
+                    color = color[index],
+                    label_color = label_color,
+                    label_fontface = label_fontface,
+                    sign_thresh = sign_thresh,
+                    sign_thresh_color=rep(sign_thresh_color,2),
+                    sign_thresh_label_size = rep(sign_thresh_label_size, 2),
+                    even_no_chr_lightness = even_no_chr_lightness[index],
+                    nudge_y = nudge_y,
+                    ymax = ymax, 
+                    show_legend = show_legend,
+                    verbose = FALSE,
+                    legend_labels=legend_labels[index],
+                    ...
+  )
+  return(manh)
+}
 
